@@ -1,21 +1,48 @@
-class Solution {
-    public int minOperations(int[] A) {
-        int n = A.length;
-        int asc = 1, dsc = 1;
 
-        for (int i = 1; i < n; i++) {
-            if (A[i] == (A[i - 1] + 1) % n)
-                asc++;            
-            if (A[i - 1] == (A[i] + 1) % n)
-                dsc++;
+class Solution {
+    public int minOperations(int[] nums) {
+        int n = nums.length;
+        int start = nums[0];
+
+        // Check increasing cyclic order
+        boolean increasing = true;
+
+        for (int i = 0; i < n; i++) {
+            if (nums[i] != (start + i) % n) {
+                increasing = false;
+                break;
+            }
         }
 
-        if (asc == n)
-            return A[0] == 0 ? 0 : Math.min(n - A[0], A[0] + 2);
+        int ans = Integer.MAX_VALUE;
 
-        if (dsc == n)
-            return Math.min(n - A[n - 1], A[n - 1]) + 1;
+        if (increasing) {
+            int rotations = (n - start) % n;
 
-        return -1;
+            ans = Math.min(rotations, start + 2);
+        }
+
+        // Check decreasing cyclic order
+        boolean decreasing = true;
+
+        for (int i = 0; i < n; i++) {
+            if (nums[i] != (start - i + n) % n) {
+                decreasing = false;
+                break;
+            }
+        }
+
+        if (decreasing) {
+            int rotations = n - 1 - start;
+
+            int operations = Math.min(
+                rotations,
+                n - rotations
+            ) + 1;
+
+            ans = Math.min(ans, operations);
+        }
+
+        return ans == Integer.MAX_VALUE ? -1 : ans;
     }
 }
