@@ -1,13 +1,9 @@
 class Solution {
     public int reverseDegree(String s) {
-
-        int ans = 0;
-        
-        for(int i = 0; i < s.length(); i++){
-
-            ans += ('z' - s.charAt(i) + 1) * (i+1);
+        int res= 0;
+        for(int i = 1; i<=s.length(); i++){
+            res += (26 - (s.charAt(i-1)-'a'))*i;
         }
-
-        return ans;
+        return res;
     }
 }
