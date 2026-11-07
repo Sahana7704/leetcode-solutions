@@ -1,22 +1,53 @@
 class Solution {
-    record Server(long at, int weight, int index) {  // at: the second it frees up; 0 while free, so free servers sort by weight, then index
-        Server freeAt(long second) { return new Server(second, weight, index); }
-    }
-
-    public int[] assignTasks(int[] servers, int[] tasks) {
-        Comparator<Server> order = Comparator.comparingLong(Server::at).thenComparingInt(Server::weight).thenComparingInt(Server::index);
-        PriorityQueue<Server> free = new PriorityQueue<>(order), busy = new PriorityQueue<>(order);
-        for (int i = 0; i < servers.length; i++) free.add(new Server(0, servers[i], i));
-
-        int[] ans = new int[tasks.length];
-        for (int s = 0; s < tasks.length; s++) {
-            while (!busy.isEmpty() && busy.peek().at() <= s)  // done by second s
-                free.add(busy.poll().freeAt(0));
-            Server server = (free.isEmpty() ? busy : free).poll();  // none free: the first to finish takes it
-            busy.add(server.freeAt(Math.max(server.at(), s) + tasks[s]));
-            ans[s] = server.index();
+    static class Server {
+        int index;
+        int wt;
+        Server(int i, int w) {
+            this.index = i;
+            this.wt = w;
         }
+    }
+    static class Usage {
+        int freeTime;
+        Server server;
+        Usage(int f, Server s) {
+            this.server = s;
+            this.freeTime = f;
+        }
+    }
+    PriorityQueue<Server> pqs = new PriorityQueue<>( (a, b) -> {
+        if(a.wt == b.wt)
+            return a.index - b.index;
+        return a.wt - b.wt;
+    });
+    PriorityQueue<Usage> busy = new PriorityQueue<>((a, b) -> a.freeTime - b.freeTime);
+    public int[] assignTasks(int[] servers, int[] tasks) {
+        for(int i = 0; i < servers.length; i++) {
+            pqs.add(new Server(i, servers[i]));
+        }
+        int[] ans = new int[tasks.length];
+        int time = 0;
+        for(int i = 0; i < tasks.length; i++) {
+            while(!busy.isEmpty() && busy.peek().freeTime <= i) {
+                pqs.add(busy.poll().server);
+            }
+            if(pqs.isEmpty()) {
+                time = busy.peek().freeTime;
+                while(!busy.isEmpty() && busy.peek().freeTime <= time)
+                    pqs.add(busy.poll().server);
+            }
 
+            Server server = pqs.poll();
+            ans[i] = server.index;
+            busy.add(new Usage(time + tasks[i], server));
+            if(time == i)
+                time++;
+        }
         return ans;
     }
+
 }
+/*
+2 priorityQueues -> freeServers, taskFreeTime;
+
+*/
