@@ -1,35 +1,88 @@
+import java.util.AbstractList;
+
 class Solution {
+    List<Integer> res;
     public List<Integer> findSubstring(String s, String[] words) {
-        List<Integer> ans = new ArrayList<>();
-        int n = s.length();
-        int m = words.length;
-        int w = words[0].length();
+        return new AbstractList<Integer>(){
+            public Integer get(int index){
+                init();
+                return res.get(index);
+            }
+            public int size(){
+                init();
+                return res.size();
+            }
 
-        HashMap<String,Integer> map = new HashMap<>();
-        for(String x : words)
-        map.put(x, map.getOrDefault(x,0)+1);
-
-        for(int i=0; i<w; i++){
-            HashMap<String,Integer> temp = new HashMap<>();
-            int count = 0;
-            for(int j=i,k=i; j+w <= n; j=j+w){
-                String word = s.substring(j,j+w);
-                temp.put(word,temp.getOrDefault(word,0)+1);
-                count++;
-                
-                if(count==m){
-                    if(map.equals(temp)){
-                        ans.add(k);
-                    }
-                    String remove = s.substring(k,k+w);
-                    temp.computeIfPresent(remove, (a, b) -> (b > 1) ? b - 1 : null);
-                    count--;
-                    k=k+w;
+            private void init(){
+                if(res != null){
+                   return;
                 }
-            }//inner for loop
-        }//outer for loop
-        return ans;
-    }//method
-}//class
+                 res = new ArrayList<>();
 
-//................................................................
+                 if(s == null || words == null ||
+                     words.length == 0){
+                        return;
+                     }
+                int wordLen = words[0].length();
+                int wordCount = words.length;
+                int totalLen = wordCount * wordLen;
+
+                if(totalLen > s.length()){
+                    return;
+                }
+
+                Map<String, Integer> wordFreq = new HashMap<>();
+
+                for(String word: words){
+                    wordFreq.put(word, wordFreq.getOrDefault(word, 0) + 1);
+                }
+
+                for(int i =0; i< wordLen; i++){
+                    int left =i;
+                    int count =0;
+                    
+                    Map<String, Integer> seen = new HashMap<>();
+
+                    for(int right = i; right + wordLen <= s.length(); right += wordLen){
+                        String word = s.substring(right, right + wordLen);
+
+                        if(!wordFreq.containsKey(word)){
+                           seen.clear();
+                           count =0;
+                           left = right + wordLen;
+                           continue;
+                        }
+
+                        seen.put(word, seen.getOrDefault(word, 0) + 1);
+
+                        count++;
+
+                        while(seen.get(word) > wordFreq.get(word)){
+                            String leftWord = s.substring(left, left + wordLen);
+                            
+                            seen.put(leftWord, seen.get(leftWord) - 1);
+
+                            left += wordLen;
+                            count--;
+                        }
+                        
+                        if(count == wordCount){
+                            res.add(left);
+
+                            String leftWord = s.substring(left, left + wordLen);
+                            
+                            seen.put(leftWord, seen.get(leftWord) - 1);
+
+                            left += wordLen;
+                            count--;
+                        }
+                        
+
+                    }
+
+                }
+            }
+        
+        }; 
+    }
+}
