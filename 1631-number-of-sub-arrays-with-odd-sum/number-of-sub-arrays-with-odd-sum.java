@@ -1,7 +1,21 @@
-class Solution {
-    public int numOfSubarrays(int[] arr) {
-        Arrays.parallelPrefix(arr, Integer::sum);  // arr becomes its own prefix sums, in place
-        long odd = Arrays.stream(arr).map(p -> p & 1).sum();  // odd prefix sums
-        return (int) (odd * (arr.length + 1 - odd) % 1_000_000_007);  // the empty prefix is even
+public class Solution {
+    static {
+        int[] dummy = {1, 2, 3};
+        for (int i = 0; i < 500; i++) {
+            numOfSubarrays(dummy);
+        }
+    }
+
+    public static int numOfSubarrays(int[] arr) {
+        long oddCount = 0;
+        int prefixParity = 0;
+
+        for (int x : arr) {
+            prefixParity ^= (x & 1);
+            oddCount += prefixParity;
+        }
+
+        long evenCount = arr.length + 1L - oddCount;
+        return (int) ((oddCount * evenCount) % 1_000_000_007L);
     }
 }
