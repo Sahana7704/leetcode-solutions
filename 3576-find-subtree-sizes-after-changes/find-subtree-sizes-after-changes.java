@@ -1,49 +1,47 @@
-
 class Solution {
-    int[] ans;
+    public int[] findSubtreeSizes(int[] parent, String s) {
+        int n = parent.length;
+        int[] size = new int[n];
+        int[] sibling = new int[n];
+        int[] active = new int[26];
 
-    void dfs(int u, List<Integer>[] adj, String s,
-             int[] p, int[] last) {
-        int c = s.charAt(u) - 'a', old = last[c];
-
-        if (u > 0 && old != -1) p[u] = old;
-        last[c] = u;
-
-        for (int v : adj[u])
-            dfs(v, adj, s, p, last);
-
-        last[c] = old;
-    }
-
-    int calc(int u, List<Integer>[] tree) {
-        ans[u] = 1;
-        for (int v : tree[u])
-            ans[u] += calc(v, tree);
-        return ans[u];
-    }
-
-    public int[] findSubtreeSizes(int[] p, String s) {
-        int n = p.length;
-        List<Integer>[] adj = new ArrayList[n];
-        List<Integer>[] tree = new ArrayList[n];
-
-        for (int i = 0; i < n; i++) {
-            adj[i] = new ArrayList<>();
-            tree[i] = new ArrayList<>();
+        // Node 0 is the root, so 0 can mark an empty child or sibling link.
+        for (int node = 1; node < n; node++) {
+            int p = parent[node];
+            sibling[node] = size[p];
+            size[p] = node;
         }
 
-        for (int i = 1; i < n; i++)
-            adj[p[i]].add(i);
+        int node = 0;
+        boolean entering = true;
 
-        int[] last = new int[26];
-        Arrays.fill(last, -1);
-        dfs(0, adj, s, p, last);
+        while (true) {
+            int letter = s.charAt(node) - 'a';
 
-        for (int i = 1; i < n; i++)
-            tree[p[i]].add(i);
+            if (entering) {
+                int child = size[node];
+                size[node] = active[letter];
+                active[letter] = 1;
 
-        ans = new int[n];
-        calc(0, tree);
-        return ans;
+                if (child != 0) {
+                    node = child;
+                    continue;
+                }
+            }
+
+            // Finish this node and restore the previous total for its letter.
+            int saved = size[node];
+            size[node] = active[letter];
+            if (node == 0) return size;
+
+            active[letter] = saved;
+            int p = parent[node];
+            int receiver = saved != 0 ? letter : s.charAt(p) - 'a';
+            active[receiver] += size[node];
+
+            int next = sibling[node];
+            entering = next != 0;
+            node = entering ? next : p;
+        }
     }
 }
