@@ -1,42 +1,72 @@
-public class Solution {
+class Solution {
+    static boolean f(int i, int j, char[][] board, String word, int m, int n, int idx, int wordlen){
+        if(idx==wordlen){
+            return true;
+        }
+        char temp=board[i][j];
+        board[i][j]='*';
+        if((j+1)<n){
+            if(board[i][j+1] == word.charAt(idx)){
+                if(f(i, j+1, board, word, m, n, idx+1, wordlen)){
+                    board[i][j]=temp;
+                    return true;
+                } 
+            }
+        }
+        if((i+1)<m){
+            if(board[i+1][j] == word.charAt(idx)){
+                if(f(i+1, j, board, word, m, n, idx+1, wordlen)){
+                    board[i][j]=temp;
+                    return true;
+                } 
+            }
+        }
+        if((j-1)>=0){
+            if(board[i][j-1] == word.charAt(idx)){
+                if(f(i, j-1, board, word, m, n, idx+1, wordlen)){
+                    board[i][j]=temp;
+                    return true;
+                } 
+            }
+        }
+        if((i-1)>=0){
+            if(board[i-1][j] == word.charAt(idx)){
+                if(f(i-1, j, board, word, m, n, idx+1, wordlen)){
+                    board[i][j]=temp;
+                    return true;
+                } 
+            }
+        }
+        board[i][j]=temp;
+        return false;
+    }
     public boolean exist(char[][] board, String word) {
-        int m = board.length;
-        int n = board[0].length;
-
-        boolean[][] visited = new boolean[m][n];
-        boolean result = false;
-        
+        String str="";
+        int m=board.length,n=board[0].length, idx=0, wordlen=word.length();
+        if(wordlen>(m*n)) return false;
+        int[] boardFreq = new int[128];
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
-                if (board[i][j] == word.charAt(0)) {
-                    result = backtrack(board, word, visited, i, j, 0);
-                    if (result) return true;
+                boardFreq[board[i][j]]++;
+            }
+        }
+
+        int[] wordFreq = new int[128];
+        for (int i = 0; i < wordlen; i++) {
+            char ch = word.charAt(i);
+            wordFreq[ch]++;
+            if (wordFreq[ch] > boardFreq[ch]) {
+                return false;
+            }
+        }
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+                if(board[i][j]==word.charAt(idx)){
+                    if(word.length()==1) return true;
+                    if(f(i, j, board, word, m, n, idx+1, wordlen)) return true;
                 }
             }
         }
-        
-        return false;
-    }
-    
-    private boolean backtrack(char[][] board, String word, boolean[][] visited, int i, int j, int index) {
-        if (index == word.length()) {
-            return true;
-        }
-        
-        if (i < 0 || i >= board.length || j < 0 || j >= board[0].length || visited[i][j] || board[i][j] != word.charAt(index)) {
-            return false;
-        }
-        
-        visited[i][j] = true;
-        
-        if (backtrack(board, word, visited, i + 1, j, index + 1) ||
-            backtrack(board, word, visited, i - 1, j, index + 1) ||
-            backtrack(board, word, visited, i, j + 1, index + 1) ||
-            backtrack(board, word, visited, i, j - 1, index + 1)) {
-            return true;
-        }
-        
-        visited[i][j] = false;
         return false;
     }
 }
