@@ -1,55 +1,50 @@
 class Solution {
-    public void solve(char[][] board) {
-        int m = board.length;
-        int n = board[0].length;
-        // visited matrix to mark all 'O's connected to the boundary
-        boolean[][] vis = new boolean[m][n];
+    private int r,c;
 
-        // 1. DFS from first/last columns
-        for(int i =0;i<m;i++){
-            if(board[i][0] == 'O' && vis[i][0] == false){
-                dfs(i,0,board,vis);
-            }
-            if(board[i][n-1] == 'O' && vis[i][n-1] == false){
-                dfs(i,n-1,board,vis);
-            }
-        }
-        // 2. DFS from first/last rows
-        for(int j = 0;j<n;j++){
-            if(board[0][j] == 'O' && vis[0][j] == false){
-                dfs(0,j,board,vis);
-            }
-            if(board[m-1][j] == 'O' && vis[m-1][j] == false){
-                dfs(m-1,j,board,vis);
-            }
-        }
-
-        // 3. Flip surrounded 'O's
-        for(int i =0;i<m;i++){
-            for(int j =0;j<n;j++){
-                // Flip 'O' if it's not marked as visited (i.e., not connected to border)
-                if(board[i][j] == 'O' && vis[i][j] == false){
-                    board[i][j] = 'X';
-                }
-            }
-        }
+    private void replaceChar(char[][] board,int i,int j,char rep){
+        board[i][j] = rep;
+        return;
     }
-    
-    public void dfs(int i, int j, char[][] board, boolean[][] vis){
-        int m = board.length;
-        int n = board[0].length;
-
-        // Base case: out of bounds, already visited, or 'X'
-        if(i<0 || j<0 || i>=m || j>=n || vis[i][j] == true || board[i][j] == 'X'){
+    private void dfs(char[][] board,int i,int j){
+        if(i<0||j<0||i>=r||j>=c||board[i][j]!='O'){
             return;
         }
+        replaceChar(board,i,j,'#');
+        dfs(board,i,j-1);
+        dfs(board,i,j+1);
+        dfs(board,i-1,j);
+        dfs(board,i+1,j);
         
-        vis[i][j] = true;
+    }
+    public void solve(char[][] board) {
+        r = board.length;
+        c = board[0].length;
 
-        // DFS in all 4 directions
-        dfs(i+1,j,board,vis);
-        dfs(i,j+1,board,vis);
-        dfs(i-1,j,board,vis);
-        dfs(i,j-1,board,vis);
+        //checking boundary regions mark them as '#'
+        for(int i=0;i<r;i++){
+            dfs(board,i,0);
+            dfs(board,i,c-1);
+        }
+
+        for(int j=0;j<c;j++){
+            dfs(board,0,j);
+            dfs(board,r-1,j);
+        }
+
+        //change all the fields other than '#' to 'X'
+        replaceBoard(board,'O','X');
+
+        //replace all '#' to 'O'
+        replaceBoard(board,'#','O');
+
+        return;
+    }
+
+    private void replaceBoard(char[][] board,char comp,char rep){
+        for(int i=0;i<r;i++){
+            for(int j=0;j<c;j++){
+                if(board[i][j]==comp)    replaceChar(board,i,j,rep);
+            }
+        }
     }
 }
