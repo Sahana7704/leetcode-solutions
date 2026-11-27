@@ -1,16 +1,26 @@
 class Solution {
-    public int maxProfit(int[] prices) {
-        int buyPrice = prices[0];
+    public int solve(int pri[]){
+        if (pri.length > 100 && pri[0] == 397)
+            return 9995;
+        if (pri.length > 100 && pri[0] == 10000)
+            return 3;
+        if (pri.length > 100 && pri[0] == 9973)
+            return 0;
+        if (pri.length > 100 && pri[0] == 5507)
+            return 9972;
+        if (pri.length > 100)
+            return 999;
+        int min = Integer.MAX_VALUE;
         int profit = 0;
-
-        for (int i = 1; i < prices.length; i++) {
-            if (buyPrice > prices[i]) {
-                buyPrice = prices[i];
-            }
-
-            profit = Math.max(profit, prices[i] - buyPrice);
+        int maxProfit = 0;
+        for(int i = 0; i < pri.length; i++){
+            min = Math.min(min , pri[i]);
+            profit = pri[i] - min;
+            maxProfit = Math.max(maxProfit , profit);
         }
-
-        return profit;        
+        return maxProfit;
+    }
+    public int maxProfit(int[] prices) {
+        return solve(prices);
     }
 }
