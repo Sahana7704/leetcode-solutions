@@ -1,14 +1,15 @@
 class Solution {
     public int maxProfit(int[] prices) {
-        int profit = 0;
+        int n = prices.length;
+        int maxProfit = 0;
 
-        // Sum all positive adjacent differences.
-        for (int i = 1; i < prices.length; i++) {
-            if (prices[i] > prices[i - 1]) {
-                profit += prices[i] - prices[i - 1];
+        for(int i = 1; i < n; i++) {
+            if(prices[i] > prices[i - 1]) {
+                int priceDiff = prices[i] - prices[i - 1];
+                maxProfit += priceDiff;
             }
         }
 
-        return profit;
+        return maxProfit;
     }
 }
